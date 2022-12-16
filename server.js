@@ -57,16 +57,18 @@ app.use("/api/games", gameRouter);
 app.use("/api/playerResults", playerResultRouter);
 app.use("/api/leaderboard", leaderboardRouter)
 
-app.listen(process.env.PORT || 5000, () =>
-  console.log(`Server started on port ${process.env.PORT}`)
-);
+// app.listen(process.env.PORT || 5000, () =>
+//   console.log(`Server started on port ${process.env.PORT}`)
+// );
 
 //Socket server
-const io = require("socket.io")(3001, {
-  cors: {
-    origin: ["https://it008-project.onrender.com"],
-  },
-})
+const httpServer = require('http').createServer(app);
+const io = require('socket.io')(httpServer, {
+  cors: { origin: '*' }
+});
+httpServer.listen(process.env.PORT || 3000, () =>
+  console.log(`Server started on port ${process.env.PORT}`)
+);
 
 let game
 let leaderboard
