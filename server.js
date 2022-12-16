@@ -62,11 +62,9 @@ app.listen(process.env.PORT || 5000, () =>
 );
 
 //Socket server
-const { instrument } = require("@socket.io/admin-ui")
-
 const io = require("socket.io")(3001, {
   cors: {
-    origin: ["http://localhost:3000", "https://admin.socket.io/#/sockets"],
+    origin: ["https://it008-project.onrender.com"],
   },
 })
 
@@ -143,5 +141,3 @@ io.on("connection", (socket) => {
     socket.to(game.pin).emit("get-answer-from-player", data, leaderboard._id, score, player)
   })
 })
-
-instrument(io, { auth: false })
