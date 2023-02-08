@@ -17,27 +17,27 @@ const gameRouter = require("./routes/game");
 const playerResultRouter = require("./routes/playerResult");
 const leaderboardRouter = require("./routes/leaderboard");
 
-// mongoose.connect(process.env.DATABASE_URL);
+mongoose.connect(process.env.DATABASE_URL);
 
-// const db = mongoose.connection;
-// db.on("error", (error) => console.error(error));
-// db.once("open", () => console.log("Connected to database"));
+const db = mongoose.connection;
+db.on("error", (error) => console.error(error));
+db.once("open", () => console.log("Connected to database"));
 
-const connectDB = async () => {
-  try {
-    await mongoose.connect(`mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@leduy.lrzfwvv.mongodb.net/?retryWrites=true&w=majority`, {
-      // useCreateIndex: true,
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      // useFindAndModify: false
-    })
-    console.log("Connected to database")
-  } catch (error) {
-    console.log(error)
-  }
-}
+// const connectDB = async () => {
+//   try {
+//     await mongoose.connect('mongodb+srv://levanduy0806:duylangtu931@leduy.lrzfwvv.mongodb.net/?retryWrites=true&w=majority', {
+//       // useCreateIndex: true,
+//       useNewUrlParser: true,
+//       useUnifiedTopology: true,
+//       // useFindAndModify: false
+//     })
+//     console.log("Connected to database")
+//   } catch (error) {
+//     console.log(error)
+//   }
+// }
 
-connectDB()
+// connectDB()
 
 app.use(express.json({ limit: '5mb' }));
 app.use(cors());
@@ -57,18 +57,18 @@ app.use("/api/games", gameRouter);
 app.use("/api/playerResults", playerResultRouter);
 app.use("/api/leaderboard", leaderboardRouter)
 
-// app.listen(process.env.PORT || 5000, () =>
-//   console.log(`Server started on port ${process.env.PORT}`)
-// );
-
-//Socket server
-const httpServer = require('http').createServer(app);
-const io = require('socket.io')(httpServer, {
-  cors: { origin: '*' }
-});
-httpServer.listen(process.env.PORT || 3000, () =>
+app.listen(process.env.PORT || 5000, () =>
   console.log(`Server started on port ${process.env.PORT}`)
 );
+
+//Socket server
+const { instrument } = require("@socket.io/admin-ui")
+
+const io = require("socket.io")(3001, {
+  cors: {
+    origin: ["http://localhost:3000", "https://admin.socket.io/#/sockets"],
+  },
+})
 
 let game
 let leaderboard
@@ -142,4 +142,10 @@ io.on("connection", (socket) => {
     let player = getPlayer(socket.id)
     socket.to(game.pin).emit("get-answer-from-player", data, leaderboard._id, score, player)
   })
+
+  socket.on("host-end-game", (playerlist, leaderboard,) => {
+    socket.to(game.pin).emit("host-end-game", playerlist, leaderboard)
+  })
 })
+
+instrument(io, { auth: false })
